@@ -362,6 +362,21 @@ export namespace ProviderTransform {
     return undefined
   }
 
+  export function toolChoice(
+    model: Provider.Model,
+    format?:
+      | {
+          type: "text"
+        }
+      | {
+          type: "json_schema"
+        },
+  ) {
+    if (format?.type !== "json_schema") return undefined
+    if (model.family?.startsWith("kimi")) return "auto"
+    return "required"
+  }
+
   const WIDELY_SUPPORTED_EFFORTS = ["low", "medium", "high"]
   const OPENAI_EFFORTS = ["none", "minimal", ...WIDELY_SUPPORTED_EFFORTS, "xhigh"]
 

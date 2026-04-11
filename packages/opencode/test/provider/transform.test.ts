@@ -156,6 +156,50 @@ describe("ProviderTransform.options - zai/zhipuai thinking", () => {
   }
 })
 
+describe("ProviderTransform.toolChoice", () => {
+  const model = (family?: string) =>
+    ({
+      id: family ? `opencode/${family}` : "openai/gpt-5.2",
+      providerID: family ? "opencode" : "openai",
+      api: {
+        id: family ?? "gpt-5.2",
+        url: "https://example.com",
+        npm: "@ai-sdk/openai-compatible",
+      },
+      name: family ?? "GPT-5.2",
+      family,
+      capabilities: {
+        temperature: true,
+        reasoning: true,
+        attachment: true,
+        toolcall: true,
+        input: { text: true, audio: false, image: false, video: false, pdf: false },
+        output: { text: true, audio: false, image: false, video: false, pdf: false },
+        interleaved: false,
+      },
+      cost: { input: 0.001, output: 0.002, cache: { read: 0.0001, write: 0.0002 } },
+      limit: { context: 128000, output: 4096 },
+      status: "active",
+      options: {},
+      headers: {},
+    }) as any
+
+  test("returns auto for kimi json schema output", () => {
+    expect(ProviderTransform.toolChoice(model("kimi"), { type: "json_schema" })).toBe("auto")
+    expect(ProviderTransform.toolChoice(model("kimi-thinking"), { type: "json_schema" })).toBe("auto")
+  })
+
+  test("returns required for non-kimi json schema output", () => {
+    expect(ProviderTransform.toolChoice(model("gpt"), { type: "json_schema" })).toBe("required")
+    expect(ProviderTransform.toolChoice(model(), { type: "json_schema" })).toBe("required")
+  })
+
+  test("returns undefined for text output", () => {
+    expect(ProviderTransform.toolChoice(model("kimi"), { type: "text" })).toBeUndefined()
+    expect(ProviderTransform.toolChoice(model("kimi"))).toBeUndefined()
+  })
+})
+
 describe("ProviderTransform.options - google thinkingConfig gating", () => {
   const sessionID = "test-session-123"
 
